@@ -1,3 +1,8 @@
+Writing a C language assembler for a predefined assembly language.
+
+Two Pass Assembler as a final project of the course 20465 - Systems Programming in C.
+
+
 שלום רב
 
 כתבתי כמה פונקציות שעזרו לי לדבאג את התוכנית בכך שאפשר יהיה לראות את תמונת הזיכרון של הקוד, את טבלת הסמלים ואת תמונת הזיכרון של הדאטה 
