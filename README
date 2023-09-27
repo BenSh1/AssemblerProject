@@ -1,0 +1,76 @@
+שלום רב
+
+כתבתי כמה פונקציות שעזרו לי לדבאג את התוכנית בכך שאפשר יהיה לראות את תמונת הזיכרון של הקוד, את טבלת הסמלים ואת תמונת הזיכרון של הדאטה 
+אולי תמצא בזה שימוש גם אז אני משאיר לך אותם פה
+הערה: דוגמאות שעשיתי לבדיקת התוכנית נמצאות בתיקייה input output
+תודה רבה על הסמסטר למדתי המון :)
+
+void printCode()
+{
+    int k = 0;
+
+    for (k = 0; k < commandWordsCounter;k++)
+    {
+
+	if(codeList[k].arr->ops.r.opcode >= 0 && codeList[k].arr->ops.r.opcode <= 1)
+ 	{
+	       printf("R : IC: %d\t r.opcode: %d\t r.rs: %d\t r.rt: %d\t r.rd: %d\t r.funct: %d\t r.unUsed: %d\n",codeList[k].IC ,codeList[k].arr->ops.r.opcode , codeList[k].arr->ops.r.rs, codeList[k].arr->ops.r.rt, codeList[k].arr->ops.r.rd , codeList[k].arr->ops.r.funct , codeList[k].arr->ops.r.unUsed );
+	}
+
+	else if(codeList[k].arr->ops.r.opcode >= 10 && codeList[k].arr->ops.r.opcode <= 24)
+ 	{
+	       	printf("I : IC: %d\t i.opcode: %d\t i.rs: %d\t i.rt: %d\t i.immed: %d\t flagKnownSymbol: %d\n",codeList[k].IC ,codeList[k].arr->ops.i.opcode , codeList[k].arr->ops.i.rs, codeList[k].arr->ops.i.rt, codeList[k].arr->ops.i.immed , codeList[k].flagKnownSymbol );
+	}
+
+	else if(codeList[k].arr->ops.j.opcode >= 30  )
+ 	{
+	       	printf("J : IC: %d\t j.opcode: %d\t j.reg: %d\t j.address: %d\t flagKnownSymbol: %d\n",codeList[k].IC ,codeList[k].arr->ops.j.opcode , codeList[k].arr->ops.j.reg, codeList[k].arr->ops.j.address, codeList[k].flagKnownSymbol );
+	}
+
+
+
+    }
+}
+
+
+
+
+void printSymboleTable()
+{
+	int i;
+	for(i = 0; i < labelsCounter; i++)
+	{
+		/*printf("name : %s\n", labelList[i].name);*/
+	    printf("name : %s\taddress: %d \tdata: %d\tcode : %d\texternal: %d\tentry: %d\n", labelList[i].name, labelList[i].address,labelList[i].data, labelList[i].code, labelList[i].external , labelList[i].entry);
+	}
+
+}
+
+
+
+void printData()
+{
+    int i = 0;
+    int j = 0;
+
+
+    for(j = 0; j < dataWordsCounter; j++)
+    {
+
+    	for (i = 0; i < dataList->arr[j].size;i++)
+    	{
+              printf("data : %d\t address : %d\t typeByte : %d\n",*(dataList->arr[j].data + i) , dataList->arr[j].address , dataList->arr[j].typeByte);
+    	}
+
+    }
+
+    
+}
+
+
+
+
+
+
+
+
