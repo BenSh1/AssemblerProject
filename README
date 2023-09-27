@@ -2,10 +2,8 @@ Writing a C language assembler for a predefined assembly language.
 
 Two Pass Assembler as a final project of the course 20465 - Systems Programming in C.
 
-
-שלום רב
-
-כתבתי פונקציות שעזרו לי לדבאג את התוכנית בכך שאפשר יהיה לראות את תמונת הזיכרון של הקוד, את טבלת הסמלים ואת תמונת הזיכרון של הדאטה 
+I wrote functions that helped me debug the program, with the ability to see the memory image of the code, the symbol table, and the memory image of the data.
+you can see it below :)
 
 void printCode()
 {
