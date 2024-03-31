@@ -23,7 +23,7 @@ void handle_IType_instruction(char * , int , int , int);
 void handle_JType_instruction(char * , int , int , int);
 void handle_directive_sentence(char*  ,int*  , int *, int* );
 void addData(int ,int , int ,int * );
-void addLabel(char * ,int , int ,int ,int , int );
+void addLabel(char *,int , unsigned int  , unsigned int ,unsigned int ,unsigned int );
 int isDefinedLabel(char *);
 void updateLabels(int);
 void updateData(int);
