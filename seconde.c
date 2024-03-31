@@ -41,18 +41,137 @@ void addExtern(char* label , int address)
     externalList[counterExternalWord].address = address;
     counterExternalWord++;
 }
+ 
+
+void handle_directive_sentence_seconde(char* token,int* ptrToDC)
+{
+
+	    int numOfParm = 0;
+	    int i;
+	    int data_size = 0;/*stored the type of the data size (db , dh ,dw)*/
+	    if(!strcmp(token,".db") || !strcmp(token,".dh") || !strcmp(token,".dw"))
+	    {
+      		switch (token[strlen(token)-1]) /*find the type of the data */
+        	{
+            	    case 'b': data_size = DB; break;
+            	    case 'h': data_size = DH; break;
+            	    case 'w': data_size = DW; break;
+        	}
+	    }
+	    else if(!strcmp(token,".asciz"))
+	    {
+		data_size = DB;
+	    }
+
+	    while(token[i] != '\0')
+	    {
+		while(isspace(token[i]))
+		{
+		    i++;
+		}
+		if(isdigit(token[i]))
+		{
+		    while(isdigit(token[i]))
+		    {
+			i++;
+		    }
+	    	    numOfParm++;/*count how many parameter*/
+		}
+
+		i++;
+	    }
+
+	    *ptrToDC = (numOfParm*data_size);/*update the DC counter with number of parameter multiply with the type of the data size*/
+
+}
 
 
 
+void handle_IType_instruction_seconde(char * token, int codeNum, int IC , int * ptrToLineNum)
+{
+
+
+		token  = strtok(NULL , ",");
+ 	        token  = strtok(NULL , ",");
+		token  = strtok(NULL , ",");
+		remove_spaces(token);/*after 3 comma may be space so we will remove space for to be with only the name of the label without space */
+
+		if(isDefinedLabel(token))/*checking if there is exist label with that name in the data of the labels*/
+    		{
+		     updateCodeI(token ,IC);  
+		}
+		else
+    		{
+		     printf("Error: line %d, label parameter wasent declared\n", *ptrToLineNum);
+    		}
+	    
+
+}
+
+
+void handle_JType_instruction_seconde(char * token, int IC, int * ptrToLineNum , int codeNum)
+{
+
+		int i= 0;
+		int regN = 0;
+		
+	    if(codeNum == 30 )
+	    {
+
+		while(token[i] != '\0')
+		{
+		    if(isdigit(token[i]))/*checking if is gonna be register in the line*/
+		    {
+			regN = 1;
+		    }
+		    i++;
+		}
+		if(regN == 0 )/*if we don't find register so it must be label*/
+		{
+		    if(isDefinedLabel(token))/*checking if there is exist label with that name in the data of the labels*/
+    		    {
+		    	updateCodeJ(token ,IC);  
+
+			if(isExternal(token))/*this statement is for storage the external label in the output file of external labels */
+			{
+			    addExtern(token,IC);
+			}
+		    }
+		    else
+    		    {
+		     	printf("Error: line %d, label \"%s\" parameter was not declared\n", *ptrToLineNum,token );
+    		    }
+
+		}
+	    }
+		
+	    else if( codeNum == 31 || codeNum == 32)
+	    {
+
+		if(isDefinedLabel(token))/*checking if there is exist label with that name in the data of the labels*/
+    		{
+		     updateCodeJ(token ,IC);  
+		     if(isExternal(token))/*this statement is for storage the external label in the output file of external labels */
+		     {
+			addExtern(token,IC);
+		     }
+		}
+		else
+    		{
+		     printf("Error: line %d, label \"%s\" parameter was not declared\n", *ptrToLineNum,token );
+    		}
+
+	    }
+
+
+}
+
+ 
 /*Second read line and if there isn't errors when writing the output files */
 void secondeReadLine(FILE *fp ,const char * file_n)
 {
     int  entryFlag = 0, labelFlag = 0; 
-    int data_size = 0;/*stored the type of the data size (db , dh ,dw)*/
-
-    int numOfParm = 0;/* stored the number of paramter*/
-    int *parms; /*stored the data*/
-
+    
     char original_line[MAX_LINE_LEN];/*stored the line*/
     char temp_line[MAX_LINE_LEN];
     char *token;
@@ -62,13 +181,8 @@ void secondeReadLine(FILE *fp ,const char * file_n)
     int DC = INITIALIZE_DC;
     int IC = INITIALIZE_IC;
 
-    int line_num = 0;
-    int error_num = 0; 
+    int line_num = 0,error_num = 0,i =0;
 
-    int i =0;
-    int size = 2;
-
-    int rsN ,rtN ,rdN  , immedN, regN = 0;
     struct opCodes tmp;
 
     initializeExternalList();
@@ -138,44 +252,10 @@ void secondeReadLine(FILE *fp ,const char * file_n)
 
 	if (!IS_DIRECTIVE(token))
 	{
-	    numOfParm = 0;
-
-	    if(!strcmp(token,".db") || !strcmp(token,".dh") || !strcmp(token,".dw"))
-	    {
-      		switch (token[strlen(token)-1]) /*find the type of the data */
-        	{
-            	    case 'b': data_size = DB; break;
-            	    case 'h': data_size = DH; break;
-            	    case 'w': data_size = DW; break;
-        	}
-	    }
-	    else if(!strcmp(token,".asciz"))
-	    {
-		data_size = DB;
-	    }
-
-	    while(token[i] != '\0')
-	    {
-		while(isspace(token[i]))
-		{
-		    i++;
-		}
-		if(isdigit(token[i]))
-		{
-		    while(isdigit(token[i]))
-		    {
-			i++;
-		    }
-	    	    numOfParm++;/*count how many parameter*/
-		}
-
-		i++;
-	    }
-
-	    DC = (numOfParm*data_size);/*update the DC counter with number of parameter multiply with the type of the data size*/
-	    
+	    handle_directive_sentence_seconde(token , &DC);
 	    continue;
 	}
+	
 	/*if it isn't instruction then continue to the next line*/
 	if(IS_INSTRUCTION(token))
 	{
@@ -208,74 +288,15 @@ void secondeReadLine(FILE *fp ,const char * file_n)
 		strcpy(temp_line, original_line);
 		/*the label will be after 3 comma so we will skip 3 comma*/
              	token = strtok(temp_line, delim);
-		token  = strtok(NULL , ",");
- 	        token  = strtok(NULL , ",");
-		token  = strtok(NULL , ",");
-		remove_spaces(token);/*after 3 comma may be space so we will remove space for to be with only the name of the label without space */
-
-		if(isDefinedLabel(token))/*checking if there is exist label with that name in the data of the labels*/
-    		{
-		     updateCodeI(token ,IC);  
-		}
-		else
-    		{
-		     printf("Error: line %d, label parameter wasent declared\n", line_num);
-    		}
+             	
+		handle_IType_instruction_seconde(token, tmp.code  , IC , &line_num);
 	    }
 	}
 
 	/*in this section of the code we are complete the binary code of the instruction command that related to the J group*/
 	else if (tmp.commandGroup == 'J')
 	{
-	    if(tmp.code == 30 )
-	    {
-		i= 0;
-		regN = 0;
-
-		while(token[i] != '\0')
-		{
-		    if(isdigit(token[i]))/*checking if is gonna be register in the line*/
-		    {
-			regN = 1;
-		    }
-		    i++;
-		}
-		if(regN == 0 )/*if we don't find register so it must be label*/
-		{
-		    if(isDefinedLabel(token))/*checking if there is exist label with that name in the data of the labels*/
-    		    {
-		    	updateCodeJ(token ,IC);  
-
-			if(isExternal(token))/*this statement is for storage the external label in the output file of external labels */
-			{
-			    addExtern(token,IC);
-			}
-		    }
-		    else
-    		    {
-		     	printf("Error: line %d, label \"%s\" parameter was not declared\n", line_num,token );
-    		    }
-
-		}
-	    }
-
-	    else if( tmp.code == 31 || tmp.code == 32)
-	    {
-
-		if(isDefinedLabel(token))/*checking if there is exist label with that name in the data of the labels*/
-    		{
-		     updateCodeJ(token ,IC);  
-		     if(isExternal(token))/*this statement is for storage the external label in the output file of external labels */
-		     {
-			addExtern(token,IC);
-		     }
-		}
-		else
-    		{
-		     printf("Error: line %d, label \"%s\" parameter was not declared\n", line_num,token );
-    		}
-
-	    }
+	    	handle_JType_instruction_seconde(token , IC , &line_num , tmp.code );
 	}
 
 	IC += 4;
@@ -284,6 +305,17 @@ void secondeReadLine(FILE *fp ,const char * file_n)
     /*if we got to here so there is no error in the file , and now we can create all files*/
     if(error_num == 0)
     {
+	creates_files(file_n);
+    }
+
+    free(externalList);
+    
+}
+
+
+void creates_files(const char * file_n)
+{
+
 	FILE *fp_Obj;/*pointer for object file */
 	FILE *fp_Ent;/*pointer for entry file */
 	FILE *fp_Ext;/*pointer for external file */
@@ -291,6 +323,8 @@ void secondeReadLine(FILE *fp ,const char * file_n)
 	char *fn_Ext;/*stored the name of external file*/
 	char *fn_Ent;/*stored the name of entry file*/
 
+	int i;
+	
         fn_Obj =(char *)calloc(strlen(file_n),sizeof(char));
 	if(fn_Obj ==NULL)
     	{
@@ -370,11 +404,14 @@ void secondeReadLine(FILE *fp ,const char * file_n)
 	    free(fn_Ent);
 	    fclose(fp_Ent);
 	}
-    }
-
-    free(externalList);
-    
 }
+
+
+
+
+
+
+
 
 
 
