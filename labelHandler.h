@@ -20,8 +20,8 @@ struct label
 
 };
 struct label *labelList;
+void addLabel(char *,int , unsigned int  , unsigned int ,unsigned int ,unsigned int );
 
-void addLabel(char *label,int address, unsigned int data , unsigned int code,unsigned int external,unsigned int entry);
 char *subString(int start, int end, char *str);
 int isDefinedLabel(char *purelabel);
 void setEntry(char *label, int lineNum);
