@@ -18,5 +18,27 @@
 #define NUM_OF_COMMANDS 27
 
 int firstReadLine(FILE * ,const char * );
+void handle_RType_instruction(char * , int , int , int);
+void handle_IType_instruction(char * , int , int , int);
+void handle_JType_instruction(char * , int , int , int);
+void handle_directive_sentence(char*  ,int*  , int *, int* );
+void addData(int ,int , int ,int * );
+void addLabel(char * ,int , int ,int ,int , int );
+int isDefinedLabel(char *);
+void updateLabels(int);
+void updateData(int);
+
+void initializelabelList();
+void initializeCodeList();
+void initializeDataList();
 
 #endif
+
+
+
+
+
+
+
+
+
