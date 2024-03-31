@@ -28,5 +28,11 @@ int isExternal(char *);
 int isDefinedLabel(char *);
 void setEntry(char *token,int line_num);
 int isExternalExist();
+void handle_directive_sentence_seconde(char*  , int* );
+void handle_IType_instruction_seconde(char * , int , int  , int *);
+void handle_JType_instruction_seconde(char * , int  , int * , int);
+void creates_files(const char *);
+
+
 
 #endif 
