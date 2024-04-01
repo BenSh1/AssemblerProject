@@ -3,16 +3,13 @@
 static int isErr;
 int ICF , DCF;
 
-
-
-void handle_RType_instruction(char* token,int codeNum ,int groupNum ,int IC)
+void handle_RType_instruction_code_zero(char* token,int codeNum,int groupNum ,int IC)
 {
+
     int rsN ,rtN ,rdN; /* holds the numbers that need to be stored in the codelist */
     int numbersFlag = 0;
     int i, num;
     char delim[]=" \t\n\r";
-		if(codeNum == 0)
-                {
     		     while(token)
                      {
         	      	i = 0;
@@ -55,9 +52,16 @@ void handle_RType_instruction(char* token,int codeNum ,int groupNum ,int IC)
 	   		token = strtok(NULL , delim);/*to next part of the same line*/
         	    }
 		    addCodeR(IC, codeNum, rsN, rtN, rdN, groupNum);
-                }
-                else if(codeNum == 1)
-                {
+
+}
+
+void handle_RType_instruction_code_one(char* token,int codeNum,int groupNum ,int IC)
+{
+    int rsN  ,rdN; /* holds the numbers that need to be stored in the codelist */
+    int numbersFlag = 0;
+    int i, num;
+    char delim[]=" \t\n\r";
+
 		    while(token)
 		    {
 			i = 0;
@@ -95,19 +99,31 @@ void handle_RType_instruction(char* token,int codeNum ,int groupNum ,int IC)
 		    }
 
                     addCodeR(IC, codeNum , rsN, 0, rdN, groupNum);
-		}
-    
-
+                    
 }
 
-void handle_IType_instruction(char* token,int codeNum ,int groupNum ,int IC)
+void handle_RType_instruction(char* token,int codeNum ,int groupNum ,int IC)
 {
+		if(codeNum == 0)
+                {
+			handle_RType_instruction_code_zero(token, codeNum,groupNum, IC);
+                }
+                else if(codeNum == 1)
+                {
+		 	handle_RType_instruction_code_one(token, codeNum, groupNum , IC);
+		}
+    
+}
+
+
+void handle_IType_instruction_not_conditional_branching(char* token,int codeNum ,int groupNum ,int IC)
+{
+
     int rsN ,rtN , immedN; /* holds the numbers that need to be stored in the codelist */
     int numbersFlag = 0;
     int i, num,isMinus;
     char delim[]=" \t\n\r";
-                if( (codeNum >= 10 && codeNum <= 14) || (codeNum >= 19 && codeNum <= 24))
-                {
+
 		    while(token)
 		    {
 			i = 0;
@@ -161,9 +177,15 @@ void handle_IType_instruction(char* token,int codeNum ,int groupNum ,int IC)
 		    }
 		    addCodeI(IC, codeNum, rsN, rtN, immedN, 0);
 
-                }
-		else if(codeNum >= 15 && codeNum <= 18)
-		{
+}
+void handle_IType_instruction_conditional_branching(char* token,int codeNum ,int groupNum ,int IC)
+{
+
+    int rsN ,rtN; /* holds the numbers that need to be stored in the codelist */
+    int numbersFlag = 0;
+    int i, num;
+    char delim[]=" \t\n\r";
+
 		    while(token)
 		    {
 			i = 0;
@@ -201,6 +223,20 @@ void handle_IType_instruction(char* token,int codeNum ,int groupNum ,int IC)
                      	token = strtok(NULL, delim);
 		    }
                     addCodeI(IC, codeNum, rsN, rtN, 0, 3);
+}
+
+
+void handle_IType_instruction(char* token,int codeNum ,int groupNum ,int IC)
+{
+
+                if( (codeNum >= 10 && codeNum <= 14) || (codeNum >= 19 && codeNum <= 24))
+                {
+		    handle_IType_instruction_not_conditional_branching(token, codeNum , groupNum , IC);
+
+                }
+		else if(codeNum >= 15 && codeNum <= 18)
+		{
+		    handle_IType_instruction_conditional_branching(token, codeNum , groupNum , IC);
 		}
 }
 
@@ -642,7 +678,6 @@ int firstReadLine(FILE *fp ,const char * file_n)
     return isErr;/*it is indicate if there is found errors in the file */
     
 }
-
 
 
 
