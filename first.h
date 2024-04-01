@@ -21,9 +21,15 @@ int firstReadLine(FILE * ,const char * );
 void handle_RType_instruction(char * , int , int , int);
 void handle_IType_instruction(char * , int , int , int);
 void handle_JType_instruction(char * , int , int , int);
+void handle_RType_instruction_code_zero(char* ,int ,int ,int );
+void handle_RType_instruction_code_one(char* ,int ,int  ,int );
+void handle_IType_instruction_not_conditional_branching(char* ,int  ,int  ,int );
+void handle_IType_instruction_conditional_branching(char* ,int  ,int  ,int );
+
 void handle_directive_sentence(char*  ,int*  , int *, int* );
-void addData(int ,int , int ,int * );
 void addLabel(char *,int , unsigned int  , unsigned int ,unsigned int ,unsigned int );
+
+void addData(int ,int , int ,int * );
 int isDefinedLabel(char *);
 void updateLabels(int);
 void updateData(int);
@@ -33,7 +39,6 @@ void initializeCodeList();
 void initializeDataList();
 
 #endif
-
 
 
 
