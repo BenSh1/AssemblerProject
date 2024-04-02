@@ -29,99 +29,20 @@ int analyse_type(char * token, const int cmd_type, char this_line[]) {
     return 0;
 }
 
+
 /*
  * checking if there is any errors in the instruction type of line 
- * command - is the rest of the line without the label if there in the line
- * this_line - is the all of the line includeing symbol if there
- * return 0 if no errors , otherwise return any number that not equal to the number zero.
+ * token - is a pointer to the current sentence
+ * codeNum - is the current code number of the instruction sentence
+ * return 0 if no errors , otherwise return any number that define error in the program  
  */
-int syntax_analyse_ins(char *command, char this_line[])
+int is_exist_error_in_ins_Ropcode(char *token, int codeNum)
 {
-    int error_num = 0;
-    struct opCodes tmp;
-    int i = 0;
-    int numberOfParms = 0;
-    int num = 0;
-    int comma_flag = 1; /*0 if possible to add comma (after number), 1 if not possible (at start or after another comma)*/ 
-    int registerFlag = 0;/*1 = if it is register , 0 = if it is not regitster*/
-    int immedFlag = 0;
-    char delim[]=" \t\n\r";
-    char * token;
-    int labelFlag = 0;/*indicate if there is label in the line*/
-    int digit;/*stored digit of the number in the line*/
-    char code[4];
-    int commandFlag = 0;/*indicate if the command name is a valid command*/
-    int size = 1;
-    char *label = (char *)calloc(size,sizeof(char));/*indicate if there is label in the line*/
-    int index_inLabel = 0;
-
-    token = strtok(this_line, delim);
-
-    if (token[i] == ',')/*checking if there is comma at the start of the line*/
-    {
-        if (comma_flag)
-    	    return MISPLACED_COMMA_START;
-    }
-    
-    if(!is_label(token , 1))/*checking if there is lable in the line*/
-    {
-	token = strtok(NULL, delim);
-	labelFlag = 1;
-    }
-
-    if (token[i] == ',')/*checking if there is comma after label*/
-    {
-        if (comma_flag)
-    	    return MISPLACED_COMMA_START;
-    }
-
-    if(!strcmp(token , "stop") )/*checking if it is "stop" command*/
-    {
-	if( (token = strtok(NULL, delim)) != NULL)/*checking if after "stop" command there is parameter*/
-	{
-	     error_num = EXTRANEOUS_OPERAND; 
-	}
-	else
-	{
-	     error_num = OK;
-	}
-	return error_num;
-    }
-
-    for (i = 0; i < 27; i++)/*find the opcode in the table code*/
-    { 
-	if (strcmp(command, getOpCodes()[i].name) == 0)
-        {
-            tmp = getOpCodes()[i]; 
-	    commandFlag = 1;         
-    	}
-    }
-
-    token = strtok(NULL, delim);
-
-    if(token == NULL)/*checking if after command (for example add ,addi ,jmp,..) there isn't any paramter , if it is true then print error */
-    {
-	return MISSING_PARAM;
-    } 
-
-
-    i = 0;
-
-    if (token[i] == ',')/*checking if after command name there is comma*/
-    {
-        if (comma_flag)
-    	    return MISPLACED_COMMA_START;
-        else
-            comma_flag = 1;
-      	i++;
-    }
-
-    numberOfParms = 0;
-
-    /*in this part of the code we will handle the syntax of the group R , I and J*/
-
-    if (tmp.commandGroup == 'R')
-    {
+        int comma_flag = 1; /*0 if possible to add comma (after number), 1 if not possible (at start or after another comma)*/ 
+        int numberOfParms = 0;
+        int i = 0;
+        int error_num = 0;
+    	char delim[]=" \t\n\r";
         while (token)
         {
             i = 0;
@@ -184,7 +105,7 @@ int syntax_analyse_ins(char *command, char this_line[])
 	    return MISPLACED_COMMA_END;
 
 	/*checking if the number of paramter is right in depnce of the opcode */
-        if (tmp.code == 0)
+        if (codeNum == 0)
         {
             if (numberOfParms > 3)
             {
@@ -195,7 +116,7 @@ int syntax_analyse_ins(char *command, char this_line[])
                 return MISSING_PARAM;
             }
         }
-        else if (tmp.code == 1)
+        else if (codeNum == 1)
         {
             if (numberOfParms != 2 && numberOfParms > 2)
             {
@@ -206,19 +127,43 @@ int syntax_analyse_ins(char *command, char this_line[])
                 return MISSING_PARAM;
             }
         }
+        return OK;
+}
 
-    }
+/*
+ * checking if there is any errors in the instruction type of I sentence 
+ * token - is a pointer to the current sentence
+ * codeNum - is the current code number of the instruction sentence
+ * return 0 if no errors , otherwise return any number that define error in the program  
+ */
+int is_exist_error_in_ins_Iopcode(char *token, int codeNum, int* ptrTosize , char * label)
+{
+        int comma_flag = 1; /*0 if possible to add comma (after number), 1 if not possible (at start or after another comma)*/ 
+        int numberOfParms = 0;
+        int i = 0;
+        int error_num = 0;
+    	char delim[]=" \t\n\r";
+    	
+    	
+    int registerFlag = 0;/*1 = if it is register , 0 = if it is not regitster*/
+    int immedFlag = 0;
 
-    else if (tmp.commandGroup == 'I')
-    {
-        if ((tmp.code >= 10 && tmp.code <= 14) || (tmp.code >= 19 && tmp.code <= 24))
+
+
+    int index_inLabel = 0;
+
+
+    	
+    	
+
+        if ((codeNum >= 10 && codeNum <= 14) || (codeNum >= 19 && codeNum <= 24))
         {
             while(token)
             {
                 i = 0;
                 while (token[i] != '\0')
                 {
-                    num = 0;
+
                     while (isspace(token[i]))/*skip space*/
                     {
                         i++;
@@ -318,7 +263,7 @@ int syntax_analyse_ins(char *command, char this_line[])
 		    /*handle immed nubmer without sign*/
                     else if (isdigit(token[i]) && token[i] != '\0')
                     {
-                        num = 0;
+
                         if (registerFlag)
                         {
                             /*return 0 if it is valid number*/
@@ -360,19 +305,19 @@ int syntax_analyse_ins(char *command, char this_line[])
 	    	return MISPLACED_COMMA_END;
 	    
 	}
-	else if (tmp.code >= 15 && tmp.code <= 18)
+	else if (codeNum >= 15 && codeNum <= 18)
 	{
             while(token)
             {
 		index_inLabel=0;
                 i = 0;
                 while (token[i] != '\0')
-                {
+                { 
 		    if(numberOfParms > 3 )
 		    {
 			return EXTRANEOUS_OPERAND;
 		    }
-                    num = 0;
+
                     while (isspace(token[i]))/*skip space*/
                     {
                         i++;
@@ -429,10 +374,10 @@ int syntax_analyse_ins(char *command, char this_line[])
 
                 	    index_inLabel++;/*counter how many letters is in label*/
 
-                	    if (index_inLabel == size)/*add memory to the pointer label the number of letters is equal to size of label*/
+                	    if (index_inLabel == (*ptrTosize))/*add memory to the pointer label the number of letters is equal to size of label*/
                 	    {
-                    	    	size++;
-                    	    	label = (char *)realloc(label,size * sizeof(char));
+                    	    	(*ptrTosize)++;
+                    	    	label = (char *)realloc(label,(*ptrTosize) * sizeof(char));
                 	    }
 			    i++;
 		        }
@@ -461,14 +406,39 @@ int syntax_analyse_ins(char *command, char this_line[])
     	    if (comma_flag) /*check if exist trailing comma */
 	    	return MISPLACED_COMMA_END;
 	}
+	return OK;
 
 
-    }
+}
 
-    else if (tmp.commandGroup == 'J')
-    {
+/*
+ * checking if there is any errors in the instruction type of J sentence 
+ * token - is a pointer to the current sentence
+ * codeNum - is the current code number of the instruction sentence
+ * ptrTosize - pointr to the size number of the current label
+ * label - pointr to the label if exist label in this sentence
+ * return 0 if no errors , otherwise return any number that define error in the program  
+ */
+int is_exist_error_in_ins_Jopcode(char *token, int codeNum, int* ptrToSize , char * label)
+{
 
-        if ((tmp.code == 30))
+ 
+        int numberOfParms = 0;
+        int i = 0;
+        int error_num = 0;
+    	char delim[]=" \t\n\r";
+
+    	
+    	
+
+
+
+
+    int index_inLabel = 0;
+
+
+
+        if ((codeNum == 30))
         {
             while(token)
             {
@@ -489,10 +459,10 @@ int syntax_analyse_ins(char *command, char this_line[])
 
                             index_inLabel++;/*how many letters in the word that needed to be label*/
 
-                            if (index_inLabel == size)
+                            if (index_inLabel == (*ptrToSize))
                             {
-                                size++;
-                                label = (char *)realloc(label, size * sizeof(char));
+                                (*ptrToSize)++;
+                                label = (char *)realloc(label, (*ptrToSize) * sizeof(char));
                             }
                             i++;
                         }
@@ -552,7 +522,7 @@ int syntax_analyse_ins(char *command, char this_line[])
 
         }
 
-        else if ((tmp.code == 31) ||(tmp.code == 32) )
+        else if ((codeNum == 31) ||(codeNum == 32) )
         {
             while(token)
             {
@@ -572,10 +542,10 @@ int syntax_analyse_ins(char *command, char this_line[])
                             *(label + index_inLabel) = token[i];
                             index_inLabel++;
 
-                            if (index_inLabel == size)
+                            if (index_inLabel == (*ptrToSize))
                             {
-                                size++;
-                                label = (char *)realloc(label, size * sizeof(char));
+                                (*ptrToSize)++;
+                                label = (char *)realloc(label, (*ptrToSize) * sizeof(char));
                             }
                             i++;
                         }
@@ -611,7 +581,131 @@ int syntax_analyse_ins(char *command, char this_line[])
             }
             free(label);
 	}
+	return OK;
 
+}
+
+
+
+ 
+
+/*
+ * checking if there is any errors in the instruction type of line 
+ * command - is the rest of the line without the label if there in the line
+ * this_line - is the all of the line includeing symbol if there
+ * return 0 if no errors , otherwise return any number that not equal to the number zero.
+ */
+int syntax_analyse_ins(char *command, char this_line[])
+{
+    int error_num = 0;
+    struct opCodes tmp;
+    int i = 0;
+
+
+    int comma_flag = 1; /*0 if possible to add comma (after number), 1 if not possible (at start or after another comma)*/ 
+
+
+    char delim[]=" \t\n\r";
+    char * token;
+    /*int labelFlag = 0;*//*indicate if there is label in the line*/
+    /*int digit;*//*stored digit of the number in the line*/
+    /*char code[4];*/
+
+    int size = 1;
+    char *label = (char *)calloc(size,sizeof(char));/*indicate if there is label in the line*/
+
+    int is_exist_error = 0;
+    token = strtok(this_line, delim);
+
+    if (token[i] == ',')/*checking if there is comma at the start of the line*/
+    {
+        if (comma_flag)
+    	    return MISPLACED_COMMA_START;
+    }
+    
+    if(!is_label(token , 1))/*checking if there is lable in the line*/
+    {
+	token = strtok(NULL, delim);
+	/*labelFlag = 1;*/
+    }
+
+    if (token[i] == ',')/*checking if there is comma after label*/
+    {
+        if (comma_flag)
+    	    return MISPLACED_COMMA_START;
+    }
+
+    if(!strcmp(token , "stop") )/*checking if it is "stop" command*/
+    {
+	if( (token = strtok(NULL, delim)) != NULL)/*checking if after "stop" command there is parameter*/
+	{
+	     error_num = EXTRANEOUS_OPERAND; 
+	}
+	else
+	{
+	     error_num = OK;
+	}
+	return error_num;
+    }
+
+    for (i = 0; i < 27; i++)/*find the opcode in the table code*/
+    { 
+	if (strcmp(command, getOpCodes()[i].name) == 0)
+        {
+            tmp = getOpCodes()[i]; 
+    	}
+    }
+
+    token = strtok(NULL, delim);
+
+    if(token == NULL)/*checking if after command (for example add ,addi ,jmp,..) there isn't any paramter , if it is true then print error */
+    {
+	return MISSING_PARAM;
+    } 
+
+
+    i = 0;
+
+    if (token[i] == ',')/*checking if after command name there is comma*/
+    {
+        if (comma_flag)
+    	    return MISPLACED_COMMA_START;
+        else
+            comma_flag = 1;
+      	i++;
+    }
+
+    /*numberOfParms = 0;*/
+
+    /*in this part of the code we will handle the syntax of the group R , I and J*/
+    if (tmp.commandGroup == 'R')
+    {
+    	is_exist_error = is_exist_error_in_ins_Ropcode(token,tmp.code);
+	if(is_exist_error)
+	{
+	    return is_exist_error;
+	}
+
+    }
+
+    else if (tmp.commandGroup == 'I')
+    {
+    	is_exist_error = is_exist_error_in_ins_Iopcode(token,tmp.code, &size,label);
+	if(is_exist_error)
+	{
+	    return is_exist_error;
+	}
+	
+    }
+
+    else if (tmp.commandGroup == 'J')
+    {
+
+    	is_exist_error = is_exist_error_in_ins_Jopcode(token,tmp.code, &size,label);
+	if(is_exist_error)
+	{
+	    return is_exist_error;
+	}
     }
 	
     return OK;
@@ -698,7 +792,7 @@ int check_start(char *token) {
 int string_analysis(char this_line[]) 
 {
 
-    char asci_str[MAX_STRING_LENGTH];
+    /*char asci_str[MAX_STRING_LENGTH];*/
     int quot_start = -1, quot_end = -1;
     /*int quoteFlag = 0;*/
     int len = strlen(this_line);
@@ -838,7 +932,6 @@ int numbers_analysis(char * token, int bytes) {
         return MISPLACED_COMMA_END;
     return OK;
 } /* end of number analysis */
-
 
 
 
