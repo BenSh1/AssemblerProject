@@ -21,7 +21,9 @@ int syntax_analyse_ins(char * token , char[]);
 int check_start(char *token);
 int string_analysis(char this_line[]);
 int numbers_analysis(char * token, int bytes );
-
+int is_exist_error_in_ins_Ropcodes(char*, int);
+int is_exist_error_in_ins_Iopcode(char*, int ,int*  , char * );
+int is_exist_error_in_ins_Jopcode(char*, int ,int*  , char * );
 
 enum {LABEL_CMD = 1, DIRECTIVE_CMD = 2, INSTRUCTION_CMD = 3}; /*line types */
 enum {DB = 1, DH = 2, DW = 4}; /*data image bytes*/
